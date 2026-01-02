@@ -1,40 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>EarnBots Mini App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>EarnBots Mini App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Telegram Mini App API -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- Telegram SDK -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-    }
+<style>
+:root {
+  --primary:#0f172a;
+  --accent:#22c55e;
+  --bg:#020617;
+  --card:#020617;
+  --border:#1e293b;
+}
 
-    body {
-      margin: 0;
-      background: #0f172a;
-      color: #fff;
-    }
+*{box-sizing:border-box;font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif}
+body{
+  margin:0;
+  background:linear-gradient(135deg,#020617,#020617);
+  color:#e5e7eb;
+}
 
-    header {
-      background: linear-gradient(135deg, #2563eb, #1e40af);
-      padding: 20px;
-      text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-    }
+header{
+  padding:16px;
+  text-align:center;
+  border-bottom:1px solid var(--border);
+}
+header h1{margin:0;font-size:22px;color:var(--accent)}
 
-    .container {
-      padding: 20px;
-    }
+.container{
+  max-width:480px;
+  margin:auto;
+  padding:16px;
+}
 
-    .card {
-      background: #1e293b;
-      border-radius: 14px;
+.card{
+  background:rgba(2,6,23,0.85);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:16px;
+}
+
+.balance{
+  font-size:28px;
+  font-weight:700;
+  color:var(--accent);
+}
+
+.task{
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  margin-bottom:12px;
+}
+.task h3{margin:0 0 6px 0;font-size:16px}
+.task small{opacity:.7}
+
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:var(--accent);
+  color:#022c22;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+}
+button:disabled{
+  background:#334155;
+  cursor:not-allowed;
+}
+
+footer{
+  text-align:center;
+  opacity:.6;
+  font-size:12px;
+  margin-top:24px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>EarnBots</h1>
+  <small>Complete tasks • Earn rewards</small>
+</header>
+
+<div class="container">
+
+  <!-- USER INFO -->
+  <div class="card">
+    <div>User ID</div>
+    <div id="uid">Loading…</div>
+  </div>
+
+  <!-- BALANCE -->
+  <div class="card">
+    <div>Balance</div>
+    <div class="balance" id="balance">0</div>
+  </div>
+
+  <!-- TASKS -->
+  <div class="card">
+    <h2>Available Tasks</h2>
+    <div id="tasks"></div>
+  </div>
+
+</div>
+
+<footer>
+  Powered by EarnBots • Telegram Mini App
+</footer>
+
+<script>
+const tg = window.Telegram.WebApp;
+tg.expand();
+
+const user = tg.initDataUnsafe?.user || {};
+document.getElementById("uid").innerText = user.id || "Unknown";
+
+/* =====================
+   SIMPLE REAL LOGIC
+   ===================== */
+
+// Stored locally (later connect to backend)
+let balance = Number(localStorage.getItem("balance") || 0);
+let completed = JSON.parse(localStorage.getItem("completed") || "[]");
+
+// Example tasks (ADMIN can replace later)
+let tasks = [
+  {id:1,title:"Join Telegram Channel",reward:50,link:"https://t.me/telegram"},
+  {id:2,title:"Follow Twitter Page",reward:30,link:"https://twitter.com"},
+  {id:3,title:"Visit Website",reward:20,link:"https://example.com"}
+];
+
+function render(){
+  document.getElementById("balance").innerText = balance;
+
+  const box = document.getElementById("tasks");
+  box.innerHTML = "";
+
+  tasks.forEach(t=>{
+    const done = completed.includes(t.id);
+
+    const div = document.createElement("div");
+    div.className="task";
+
+    div.innerHTML = `
+      <h3>${t.title}</h3>
+      <small>Reward: ${t.reward}</small><br><br>
+      <button ${done?"disabled":""}>
+        ${done?"Completed":"Complete Task"}
+      </button>
+    `;
+
+    div.querySelector("button").onclick = ()=>{
+      window.open(t.link,"_blank");
+      balance += t.reward;
+      completed.push(t.id);
+
+      localStorage.setItem("balance",balance);
+      localStorage.setItem("completed",JSON.stringify(completed));
+
+      tg.HapticFeedback.impactOccurred("medium");
+      render();
+    };
+
+    box.appendChild(div);
+  });
+}
+
+render();
+</script>
+
+</body>
+</html>      border-radius: 14px;
       padding: 16px;
       margin-bottom: 15px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.3);
