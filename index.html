@@ -1,149 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cashbot – Earn by Completing Tasks</title>
+  <meta charset="UTF-8" />
+  <title>EarnBots Mini App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    color: #fff;
-}
+  <!-- Telegram Mini App API -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-.container {
-    max-width: 420px;
-    margin: auto;
-    padding: 20px;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
 
-.header {
-    text-align: center;
-    margin-bottom: 20px;
-}
+    body {
+      margin: 0;
+      background: #0f172a;
+      color: #fff;
+    }
 
-.header h1 {
-    font-size: 28px;
-    color: #00ffcc;
-}
+    header {
+      background: linear-gradient(135deg, #2563eb, #1e40af);
+      padding: 20px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+    }
 
-.card {
-    background: rgba(255,255,255,0.08);
-    border-radius: 15px;
-    padding: 15px;
-    margin-bottom: 15px;
-}
+    .container {
+      padding: 20px;
+    }
 
-button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    background: #00ffcc;
-    color: #000;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-}
+    .card {
+      background: #1e293b;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
 
-button:hover {
-    opacity: 0.9;
-}
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
 
-.task {
-    border-bottom: 1px solid rgba(255,255,255,0.2);
-    padding: 10px 0;
-}
+    .stat {
+      font-size: 26px;
+      font-weight: bold;
+      color: #38bdf8;
+    }
 
-input, textarea {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    margin-top: 5px;
-    margin-bottom: 10px;
-}
-</style>
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #2563eb;
+      color: #fff;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .task {
+      background: #020617;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .task small {
+      color: #94a3b8;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+  </style>
 </head>
 
 <body>
+
+<header>
+  🚀 EarnBots Mini App
+</header>
+
 <div class="container">
 
-<div class="header">
-    <h1>💰 Cashbot</h1>
-    <p>Complete tasks & earn money</p>
-</div>
+  <div class="card">
+    <h3>👤 User</h3>
+    <div id="username">Loading...</div>
+  </div>
 
-<div class="card">
-    <h3>Available Tasks</h3>
+  <div class="card">
+    <h3>💰 Balance</h3>
+    <div class="stat" id="balance">0</div>
+    <button onclick="withdraw()">Withdraw</button>
+  </div>
 
-    <div class="task">
-        <b>Follow Instagram Page</b><br>
-        Reward: ₦200
-        <button onclick="submitProof()">Submit Proof</button>
-    </div>
+  <div class="card">
+    <h3>📋 Available Tasks</h3>
+    <div id="tasks"></div>
+    <button onclick="refreshTasks()">Refresh Tasks</button>
+  </div>
 
-    <div class="task">
-        <b>Join Telegram Channel</b><br>
-        Reward: ₦150
-        <button onclick="submitProof()">Submit Proof</button>
-    </div>
-</div>
-
-<div class="card">
-    <h3>Submit Proof</h3>
-    <input type="text" id="proof" placeholder="Paste link or screenshot URL">
-    <button onclick="sendProof()">Send Proof</button>
-</div>
-
-<div class="card">
-    <h3>For Businesses</h3>
-    <input type="text" id="bizName" placeholder="Business Name">
-    <textarea id="bizTask" placeholder="Describe your task"></textarea>
-    <button onclick="contactBusiness()">Submit Task</button>
-</div>
+  <div class="card">
+    <h3>👥 Referral</h3>
+    <small>Your referral link</small>
+    <div id="referral"></div>
+    <button onclick="copyReferral()">Copy Link</button>
+  </div>
 
 </div>
+
+<footer>
+  EarnBots © 2026 · Telegram Mini App
+</footer>
 
 <script>
-const BOT_TOKEN = "8421504587:AAGz1qEqi562yPobtcNRewM5c4cqFB95V1c";
-const CHAT_ID = "7973039530";
+  const tg = window.Telegram.WebApp;
+  tg.expand();
 
-function sendToTelegram(message) {
-    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            chat_id: CHAT_ID,
-            text: message
-        })
+  const user = tg.initDataUnsafe.user;
+
+  document.getElementById("username").innerText =
+    user ? `${user.first_name} (@${user.username || "no_username"})` : "Guest";
+
+  const USER_ID = user?.id || 0;
+  const BOT_USERNAME = "YOUR_BOT_USERNAME";
+
+  // DEMO DATA (replace with API later)
+  let balance = 1200;
+  let tasks = [
+    { title: "Join Telegram Channel", reward: 50 },
+    { title: "Follow Instagram Page", reward: 100 },
+    { title: "Watch Sponsored Video", reward: 150 }
+  ];
+
+  document.getElementById("balance").innerText = balance;
+
+  function renderTasks() {
+    const el = document.getElementById("tasks");
+    el.innerHTML = "";
+
+    tasks.forEach((t, i) => {
+      const div = document.createElement("div");
+      div.className = "task";
+      div.innerHTML = `
+        <b>${t.title}</b><br>
+        <small>Reward: ${t.reward} coins</small>
+        <button onclick="completeTask(${i})">Complete</button>
+      `;
+      el.appendChild(div);
     });
-}
+  }
 
-function submitProof() {
-    alert("Paste your proof below and submit.");
-}
+  function completeTask(index) {
+    balance += tasks[index].reward;
+    document.getElementById("balance").innerText = balance;
+    tg.showAlert("✅ Task completed!");
+  }
 
-function sendProof() {
-    let proof = document.getElementById("proof").value;
-    if (!proof) return alert("Proof required");
+  function withdraw() {
+    tg.showAlert("💸 Withdrawals are handled by the bot.");
+    tg.close();
+  }
 
-    sendToTelegram("📸 New Task Proof:\n" + proof);
-    alert("Proof sent successfully!");
-}
+  function refreshTasks() {
+    tg.showAlert("🔄 Tasks refreshed");
+  }
 
-function contactBusiness() {
-    let name = document.getElementById("bizName").value;
-    let task = document.getElementById("bizTask").value;
+  const referralLink =
+    `https://t.me/${BOT_USERNAME}?start=${USER_ID}`;
+  document.getElementById("referral").innerText = referralLink;
 
-    if (!name || !task) return alert("Fill all fields");
+  function copyReferral() {
+    navigator.clipboard.writeText(referralLink);
+    tg.showAlert("📋 Referral link copied!");
+  }
 
-    sendToTelegram("🏢 Business Task Request\nName: " + name + "\nTask: " + task);
-    alert("Business request sent!");
-}
+  renderTasks();
 </script>
 
 </body>
-</html>
+    </html>
