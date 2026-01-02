@@ -2,101 +2,152 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>EarnBots Mini App</title>
+<title>EarnBots</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
+* { box-sizing: border-box; }
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #020617, #0f172a);
+  background: #0f172a;
   color: #ffffff;
 }
 
 header {
-  padding: 20px;
+  background: linear-gradient(135deg, #020617, #1e293b);
+  padding: 24px;
   text-align: center;
-  font-size: 22px;
-  font-weight: bold;
-  background: #020617;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 26px;
+}
+
+header p {
+  margin: 6px 0 0;
+  opacity: 0.8;
 }
 
 .container {
-  padding: 20px;
+  padding: 16px;
 }
 
 .card {
   background: #1e293b;
+  border-radius: 14px;
   padding: 16px;
-  border-radius: 12px;
   margin-bottom: 16px;
 }
 
-.card h3 {
-  margin-top: 0;
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
 }
 
 button {
   width: 100%;
   padding: 14px;
-  font-size: 16px;
-  border-radius: 8px;
   border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
+  margin-top: 10px;
+}
+
+.primary {
   background: #22c55e;
   color: #020617;
-  font-weight: bold;
 }
 
 .secondary {
   background: #38bdf8;
-  margin-top: 10px;
+  color: #020617;
+}
+
+.danger {
+  background: #ef4444;
+  color: white;
+}
+
+.small {
+  font-size: 13px;
+  opacity: 0.8;
 }
 
 .footer {
   text-align: center;
   font-size: 12px;
-  opacity: 0.7;
-  margin-top: 20px;
+  opacity: 0.6;
+  padding: 16px 0;
 }
 </style>
 </head>
 
 <body>
 
-<header>EarnBots</header>
+<header>
+  <h1>EarnBots</h1>
+  <p>Complete tasks • Get verified • Earn rewards</p>
+</header>
 
 <div class="container">
 
+  <!-- PROFILE -->
   <div class="card">
-    <h3>👋 Welcome</h3>
-    <p id="userInfo">Loading user...</p>
+    <div class="profile">
+      <div class="avatar" id="avatar">👤</div>
+      <div>
+        <strong id="name">Loading user...</strong><br>
+        <span class="small" id="username"></span>
+      </div>
+    </div>
   </div>
 
+  <!-- BANNER -->
   <div class="card">
-    <h3>💼 How It Works</h3>
-    <p>
-      • Businesses post tasks<br>
-      • You complete tasks<br>
-      • Submit proof in the bot<br>
-      • Get paid after approval
+    <h3>🚀 How It Works</h3>
+    <p class="small">
+      1. View available tasks in the bot<br>
+      2. Complete the task action<br>
+      3. Submit proof for review<br>
+      4. Get paid after approval
     </p>
   </div>
 
+  <!-- ACTIONS -->
   <div class="card">
-    <h3>📋 Perform Tasks</h3>
-    <p>
-      All tasks are managed securely through our Telegram bot.
-    </p>
-    <button onclick="openBot()">Open Task Bot</button>
+    <h3>📋 Tasks</h3>
+    <p class="small">Tasks are managed securely inside the Telegram bot.</p>
+    <button class="primary" onclick="openBot('tasks')">View Tasks</button>
+  </div>
+
+  <div class="card">
+    <h3>💰 Wallet</h3>
+    <button class="secondary" onclick="openBot('balance')">Check Balance</button>
+    <button class="danger" onclick="openBot('withdraw')">Withdraw Earnings</button>
   </div>
 
   <div class="card">
     <h3>🏢 For Businesses</h3>
-    <p>
-      Promote your brand, grow engagement, and pay only for verified actions.
+    <p class="small">
+      Promote your brand, grow engagement, and pay only for verified results.
     </p>
     <button class="secondary" onclick="contactAdmin()">Contact Admin</button>
   </div>
@@ -113,21 +164,25 @@ tg.ready();
 
 if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
   const user = tg.initDataUnsafe.user;
-  document.getElementById("userInfo").innerText =
-    `Hello ${user.first_name}!`;
+  document.getElementById("name").innerText = user.first_name;
+  document.getElementById("username").innerText =
+    user.username ? "@" + user.username : "";
+  document.getElementById("avatar").innerText =
+    user.first_name.charAt(0).toUpperCase();
 } else {
-  document.getElementById("userInfo").innerText =
-    "Hello! Opened from Telegram.";
+  document.getElementById("name").innerText = "Welcome";
 }
 
-function openBot() {
-  tg.openTelegramLink("https://t.me/uzoegbeni");
+function openBot(command) {
+  let url = "https://t.me/uzoegbeni_bot";
+  if (command) url += "?start=" + command;
+  tg.openTelegramLink(url);
 }
 
 function contactAdmin() {
-  tg.openTelegramLink("https://t.me/uzoegbeni");
+  tg.openTelegramLink("https://t.me/Uzoegbeni");
 }
 </script>
 
 </body>
-</html>
+                                                                          </html>
