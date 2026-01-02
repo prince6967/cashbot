@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cashbot – Earn by Completing Tasks</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: #fff;
+}
+
+.container {
+    max-width: 420px;
+    margin: auto;
+    padding: 20px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 28px;
+    color: #00ffcc;
+}
+
+.card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #00ffcc;
+    color: #000;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.task {
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding: 10px 0;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="header">
+    <h1>💰 Cashbot</h1>
+    <p>Complete tasks & earn money</p>
+</div>
+
+<div class="card">
+    <h3>Available Tasks</h3>
+
+    <div class="task">
+        <b>Follow Instagram Page</b><br>
+        Reward: ₦200
+        <button onclick="submitProof()">Submit Proof</button>
+    </div>
+
+    <div class="task">
+        <b>Join Telegram Channel</b><br>
+        Reward: ₦150
+        <button onclick="submitProof()">Submit Proof</button>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Submit Proof</h3>
+    <input type="text" id="proof" placeholder="Paste link or screenshot URL">
+    <button onclick="sendProof()">Send Proof</button>
+</div>
+
+<div class="card">
+    <h3>For Businesses</h3>
+    <input type="text" id="bizName" placeholder="Business Name">
+    <textarea id="bizTask" placeholder="Describe your task"></textarea>
+    <button onclick="contactBusiness()">Submit Task</button>
+</div>
+
+</div>
+
+<script>
+const BOT_TOKEN = "YOUR_BOT_TOKEN_HERE";
+const CHAT_ID = "YOUR_TELEGRAM_ID_HERE";
+
+function sendToTelegram(message) {
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            chat_id: CHAT_ID,
+            text: message
+        })
+    });
+}
+
+function submitProof() {
+    alert("Paste your proof below and submit.");
+}
+
+function sendProof() {
+    let proof = document.getElementById("proof").value;
+    if (!proof) return alert("Proof required");
+
+    sendToTelegram("📸 New Task Proof:\n" + proof);
+    alert("Proof sent successfully!");
+}
+
+function contactBusiness() {
+    let name = document.getElementById("bizName").value;
+    let task = document.getElementById("bizTask").value;
+
+    if (!name || !task) return alert("Fill all fields");
+
+    sendToTelegram("🏢 Business Task Request\nName: " + name + "\nTask: " + task);
+    alert("Business request sent!");
+}
+</script>
+
+</body>
+</html>
